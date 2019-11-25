@@ -1,1 +1,0 @@
-[{"errors": [], "elevation": 0, "description": "You are standing on grass and surrounded by a dense mist. You can barely make out the exits in any direction.", "exits": ["n", "s", "w"], "title": "A misty room", "items": [], "messages": [], "terrain": "NORMAL", "coordinates": "(60,64)", "players": [], "cooldown": 1.0, "room_id": 63}]
