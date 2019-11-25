@@ -1,4 +1,4 @@
-# Initialize player
+```# Initialize player
 # Move player to new room
 # Traverse rooms and save to local file
 # Build a map/graph
@@ -9,4 +9,4 @@
          # go to room where you can change name
              #change name
 # go to room where you can mine
-    # mine the coin
+    # mine the coin```
