@@ -1,21 +1,21 @@
 import requests
 import json
-# from dotenv import load_dotenv
-# load_dotenv()
-# import os
+from dotenv import load_dotenv
+load_dotenv()
+import os
 from queue import Queue
 
 
-# token = os.getenv('TOKEN')
+token = os.getenv('TOKEN')
+player_name = os.getenv('PLAYER_NAME')
 
 def init_room():
     # Init
     response = requests.get("https://lambda-treasure-hunt.herokuapp.com/api/adv/init/", json={
-                            "player": "player375"}, headers={'Authorization': "Token 5b68275223b5774b6a277c8a21b18c4629540e1c"})
+                            "player": player_name}, headers={'Authorization': token})
     
 
     data = response.json()
     print(data)
-
 
 init_room()
