@@ -9,4 +9,5 @@
          # go to room where you can change name
              #change name
 # go to room where you can mine
-    # mine the coin```
+    # mine the coin
+```
