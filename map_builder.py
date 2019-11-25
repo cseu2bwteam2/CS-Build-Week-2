@@ -30,6 +30,17 @@ def init_room():
     with open("rooms_data.py", "w") as rooms:
         rooms.write(json.dumps(rooms_data))
 
+    # intialise with empty data
+    rooms_directions = {}
+
+    # initialise the direction with the current room
+    # intial room ID 
+    intial_room_id = rooms_data[-1]["room_id"]
+    room_init = {intial_room_id: {"n": "?", "s": "?", "e": "?", "w": "?"}}
+    rooms_directions.update(room_init)
+    with open("rooms_directions.py", "w") as rooms:
+        rooms.write(json.dumps(rooms_directions))
+
 def room_walker(queue, rooms_data, rooms_directions):
     # get the current room id
     room_id = str(rooms_data[-1]["room_id"])
@@ -153,6 +164,7 @@ while q.size() > 0:
     data = response.json()
     # add to the rooms_data
     rooms_data.append(data)
+
     # updated position
     updated_room = str(rooms_data[-1]["room_id"])
     # update the map 
@@ -182,4 +194,3 @@ while q.size() > 0:
     sleep(data["cooldown"])
     # Then walk again
     room_walker(q)
-
