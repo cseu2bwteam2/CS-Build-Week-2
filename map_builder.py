@@ -9,7 +9,7 @@ from queue import Queue
 
 # Read the credential from the .env file
 token = os.getenv('TOKEN')
-player_name = os.getenv('PLAYER_NAME')
+player_name = os.getenv('PLAYER')
 
 # directions to comeback
 go_back = {"n": "s", "s": "n", "e": "w", "w": "e"}
