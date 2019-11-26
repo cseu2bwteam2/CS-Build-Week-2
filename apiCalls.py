@@ -257,10 +257,11 @@ class APICalls:
             headers={'Authorization': token},
             json={"name": player, "confirm": "aye"}
         )
+        print(res.json())
         return res.json()
 
 c = APICalls()
-
+c.change_player_name()
 
 # c.init()
 # c.move('s')
