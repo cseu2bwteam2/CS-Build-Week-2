@@ -2,6 +2,7 @@ import os
 import requests
 import json
 from apiCalls import APICalls
+from queue import Queue
 
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
@@ -106,4 +107,43 @@ class Player:
             sleep(data["cooldown"])
             print(data)
 
-    def traverse_path(self, room_directions, room_data, current_room_id, destination):
+    def traverse_path(self, room_directions, room_data, room_id, destination):
+        q = Queue()
+        explored = set()
+        ways = {}
+        q.enqueue(room_id)
+        ways[room_id] = [room_id]
+        # the usual usual
+        while q.size() > 0:
+            current_room = q.dequeue()
+            explored.add(current_room)
+            for room_lookup in room_map[current_room].values():
+                if room_lookup in explored or room_lookup == '?':
+                    continue
+                # flipping
+                new_way = ways[current_room][:]
+                new_way.append(room_lookup)
+                ways[room_lookup] = new_way
+                found = False
+                for data in room_data:
+                    if room_lookup == str(data['room_id']):
+                        # check the room title if it match
+                        if data['title'].lower() == destination.lower():
+                            found = True
+                            break
+                        # check the room itmes if it match
+                        if 'items' in data and destination in data['items']:
+                            found = True
+                            break
+                if room_lookup == destination:
+                    # we found the room
+                    found = True
+                if found:
+                    the_way = ways[room_lookup]
+                    exits = []
+                    for step in range(len(the_way) - 1):
+                        exits.append(directionToRoom(
+                            room_map, the_way[step], the_way[step + 1]))
+                    return exits
+                q.enqueue(room_lookup)
+        return None
