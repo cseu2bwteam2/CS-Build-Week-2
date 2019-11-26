@@ -11,10 +11,11 @@ not_enough_gold = True
 
 while not_enough_gold:
     current_room = call.init()
+    sleep(current_room["cooldown"])
     # if couldn't find the treasure, repeat
     while not player.lookup_for_treasure(current_room["room_id"], "tiny treasure"):
         current_room = call.init()
-    current_room = call.init()
+    # current_room = call.init()
     # Picked something will go sellling it 
     player.travel(current_room["room_id"], "Shop")
     

@@ -26,7 +26,6 @@ class APICalls:
 
     def init(self):
         response = requests.get(url + '/adv/init/', headers={'Authorization': token}, json={"player": self.player}).json()
-        print("Init with " + str(response["room_id"]))
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
@@ -52,6 +51,7 @@ class APICalls:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
             #print("Its this one" + str(self.current_room))
+            time.sleep(response["cooldown"])
             return self.current_room
         except:
             print("Invalid response", response)
@@ -194,8 +194,8 @@ class APICalls:
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
+            sleep(response["cooldown"])
             return self.current_room
-            print(self.current_room)
         except:
             print("Invalid response", response)
 
@@ -244,7 +244,8 @@ class APICalls:
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
-            print(self.current_room)
+            sleep(response["cooldown"])
+            return self.current_room
         except:
             print("Invalid response", response)
 

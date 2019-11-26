@@ -50,7 +50,6 @@ class Player:
         if data:
             # pause to cool
             # sleep(data["cooldown"])
-            print("******  Picked up "+str(data["items"][0])+" ******\n")
             return True
         # no item was picked
         return False
@@ -77,6 +76,7 @@ class Player:
             flew = False
             dashed = False
             if fly:
+                print("Flying")
                 for room in room_data:
                     if str(room['room_id']) == current_room_id:
                         # we fly to get up faster
@@ -88,6 +88,7 @@ class Player:
                             break
             # dash if can dash and didn't use fly and there is more rooms to dash through than 1
             if not flew and dash:
+                print("Dashing")
                 dash_destination = [traverse[step]]
                 jump = step + 1
                 while jump < len(traverse):
@@ -108,8 +109,10 @@ class Player:
                     dashed = True                    
             # boring walking
             if not dashed and not flew:
+                print("No Dash nor Flight")
                 next_room_id = room_directions[str(current_room_id)][traverse[step]]
                 data = self.call.move(traverse[step])
+            print("The data after travel" + str(data))
             current_room_id = str(data['room_id'])
             sleep(data["cooldown"])
             print(data)
@@ -139,7 +142,10 @@ class Player:
                             found = True
                             break
                         # check the room itmes if it match
-                        if 'items' in data and destination in data['items']:
+                        if 'items' in data and 'small treasure' in data['items']:
+                            found = True
+                            break
+                        elif 'items' in data and 'tiny treasure' in data['items']:
                             found = True
                             break
                 if room_lookup == destination:
