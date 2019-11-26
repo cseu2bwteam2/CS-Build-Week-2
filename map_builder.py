@@ -153,7 +153,6 @@ while queue.size() > 0:
     direction = queue.dequeue()
     # get the player moving
     response = requests.post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", json={"direction": direction}, headers={'Authorization': token})
-    print(response, 'resss')
     # parse the response
     data = response.json()
     # add to the rooms_data
