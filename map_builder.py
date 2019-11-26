@@ -1,4 +1,5 @@
 import requests
+from time import sleep
 import json
 from dotenv import load_dotenv
 load_dotenv()
@@ -15,33 +16,39 @@ go_back = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
 
 def init_room():
-    # Init
-    response = requests.get("https://lambda-treasure-hunt.herokuapp.com/api/adv/init/", json={
-                            "player": player_name}, headers={'Authorization': token})
-    data = response.json()
-
     # intialise with empty data
     rooms_data = []
-    # append with the received data
-    rooms_data.append(data)
+    # Load the starting room
+    start_room = {  "room_id": 0,
+                    "title": "Room 0",
+                    "description": "You are standing in an empty room.",
+                    "coordinates": "(60,60)",
+                    "players": [],
+                    "items": ["small treasure"],
+                    "exits": ["n", "s", "e", "w"],
+                    "cooldown": 60.0,
+                    "errors": [],
+                    "messages": []
+                }
+    rooms_data.append(start_room)
 
     # write the data to the file, it will be used as 
     # starting point
     with open("rooms_data.py", "w") as rooms:
         rooms.write(json.dumps(rooms_data))
 
-    # intialise with empty data
+    # intialise with empty directions
     rooms_directions = {}
-
     # initialise the direction with the current room
-    # intial room ID 
-    intial_room_id = rooms_data[-1]["room_id"]
-    room_init = {intial_room_id: {"n": "?", "s": "?", "e": "?", "w": "?"}}
+    # intial room ID is "0"
+    room_init = {"0": {"n": "?", "s": "?", "e": "?", "w": "?"}}
     rooms_directions.update(room_init)
+    # write to the file
     with open("rooms_directions.py", "w") as rooms:
         rooms.write(json.dumps(rooms_directions))
 
-def room_walker(queue, rooms_data, rooms_directions):
+
+def room_walker(queue):
     # get the current room id
     room_id = str(rooms_data[-1]["room_id"])
 
@@ -49,7 +56,6 @@ def room_walker(queue, rooms_data, rooms_directions):
     current_directions = rooms_directions[room_id]
     # track the path that have not been visited yet
     not_visited_paths = []
-
     # loop through current room
     for direction in current_directions:
         # if that direction is still at '?'
@@ -61,13 +67,10 @@ def room_walker(queue, rooms_data, rooms_directions):
     if not_visited_paths:
         # add to the queue
         queue.enqueue(not_visited_paths[0])
-
-
     else:
         # keep looking for not visited room
         # BFT traversal 
-        unexplored_path = BF_traversal(rooms_data)
-
+        unexplored_path = BF_traversal(rooms_data, rooms_directions)
         # if there are rooms that have not been visited
         if unexplored_path is not None:
             # explore the path
@@ -80,13 +83,13 @@ def room_walker(queue, rooms_data, rooms_directions):
 
 
 def BF_traversal(rooms_data, rooms_directions):
-    room_id = str(rooms_data[-1]["room_id"])
     # New local queue
     q = Queue()
+    # enqueue the current room as a list
+    q.enqueue([str(rooms_data[-1]["room_id"])])
+
     # track the visited room
     visited_room = set()
-    # enqueue the current room as a list
-    q.enqueue([room_id])
 
     # Our classical while loop
     while q.size() > 0:
@@ -111,34 +114,30 @@ def BF_traversal(rooms_data, rooms_directions):
                     path.append(rooms_directions[room][direction])
                     # enqueue it
                     q.enqueue(path)
-
     # return None if no unexplored room is found
     return None
 
 # Itnitalise to the starting room
-# using the init end-point to write in the file
+# Write to the files for mapping
 init_room()
-
-# create a queue
-q = Queue()
-
 
 # read the rooms data file
 with open("rooms_data.py", "r") as rooms:
     # read the room details
     rooms_data = json.loads(rooms.read())
-
 # read the rooms directions file
 with open("rooms_directions.py", "r") as directions:
     # read the map from the room_graph world
     rooms_directions = json.loads(directions.read())
 
-# call room_walker with queue and player
-room_walker(q, rooms_data, rooms_directions)
+# create a queue
+queue = Queue()
+
+# call room_walker with queue and related files
+room_walker(queue)
 
 # While we have room in the queue to visit
-while q.size() > 0:
-
+while queue.size() > 0:
     # read the rooms data file
     with open("rooms_data.py", "r") as rooms:
         # read the room details
@@ -149,32 +148,30 @@ while q.size() > 0:
         # read the map from the room_graph world
         rooms_directions = json.loads(directions.read())
 
-
     # get the room where the player is
     player_room = str(rooms_data[-1]["room_id"])
-
     # Where he go next from the queue
-    direction = q.dequeue()
-
+    direction = queue.dequeue()
     # get the player moving
-    response = requests.post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", json={
-                            "direction": direction}, headers={'Authorization': token})
+    response = requests.post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", json={"direction": direction}, headers={'Authorization': token})
 
     # parse the response
     data = response.json()
     # add to the rooms_data
     rooms_data.append(data)
 
+    #####print(rooms_data)
     # updated position
     updated_room = str(rooms_data[-1]["room_id"])
+    print("moved to room " + str(updated_room))
     # update the map 
     rooms_directions[player_room][direction] = updated_room
     # if the room not on the map yet
     if updated_room not in rooms_directions:
         exits = data["exits"]
         directions = {}
-        for direction in exits:
-            directions[direction] = "?"
+        for door in exits:
+            directions[door] = "?"
         rooms_directions[updated_room] = directions
 
     # come back to the the previous room
@@ -185,12 +182,10 @@ while q.size() > 0:
     # update the directions file
     with open("rooms_directions.py", "w") as directions:
         directions.write(json.dumps(rooms_directions))
-
     # update the rooms data file
     with open("rooms_data.py", "w") as rooms:
         rooms.write(json.dumps(rooms_data))
-
     # pause while cooling down
     sleep(data["cooldown"])
     # Then walk again
-    room_walker(q)
+    room_walker(queue)
