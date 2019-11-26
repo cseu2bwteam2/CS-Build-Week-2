@@ -135,14 +135,12 @@ class APICalls:
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:difficulty] == "0" * difficulty
 
-    def proof_of_work(self, last_proof, difficulty):
         proof = 100000000
-        while self.valid_proof(last_proof, proof, difficulty) is False:
+        while self.valid_proof(block, proof, difficulty) is False:
             proof = random.getrandbits(32)
         self.new_proof = proof
 
     def mineCoin(self, proof):
-        print(proof)
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
         response = requests.post(
