@@ -5,6 +5,7 @@ import os
 import time
 from util import Queue, bfs
 
+url = os.environ['BASE_URL']
 token = os.getenv('TOKEN')
 player_name = os.getenv('PLAYER')
 
@@ -12,7 +13,7 @@ room_grid = {"0": {"n": "10", "s": "2", "e": "4", "w": "1"}, "10": {"n": "19", "
 
 
 current_room = requests.get(
-' https://lambda-treasure-hunt.herokuapp.com/api/adv/init/',
+url + '/adv/init/',
 headers={
 'Authorization': token},
 ).json()
