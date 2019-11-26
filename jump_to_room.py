@@ -19,6 +19,8 @@ headers={
 ).json()
 
 def jump_to_room(destination, current_room=current_room):
+    print(token)
+    print(current_room, 'cccc')
     route_to_shop = bfs([current_room["room_id"]], destination, room_grid)
     routes = []
 
@@ -49,4 +51,4 @@ def jump_to_room(destination, current_room=current_room):
 
 
 
-jump_to_room('55')
+jump_to_room('254')

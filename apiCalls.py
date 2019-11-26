@@ -3,6 +3,7 @@ import requests
 import time
 import hashlib
 import json
+import random
 
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
@@ -136,21 +137,31 @@ class APICalls:
 
     def proof_of_work(self, block, difficulty):
         block_string = json.dumps(block, sort_keys=True).encode()
-        proof = 0
+        proof = 100000
         while self.valid_proof(block_string, proof, difficulty) is False:
-            proof += 1
+            proof = random.getrandbits(32)
         self.new_proof = proof
+        print('proof', proof)
+        print('last_proof', block)
+        if (self.new_proof > 0):
+            return self.mineCoin(proof)
 
     def mineCoin(self, proof):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
         response = requests.post(
-            url + '/bc/mine/', headers={'Authorization': token}, json={"proof": int(proof)}).json()
-        try:
-            print(response)
-            self.waiting_time = time.time() + float(response.get('cooldown'))
-        except:
-            print('Invaleid response', response)
+            url + '/bc/mine/', headers={'Authorization': token}, json={"proof": int(proof)})
+        if response.status_code == 400:
+            self.new_proof = 0
+        response = response.json()
+        print(response)
+
+        return response
+        # try:
+        #     print(response)
+        #     self.waiting_time = time.time() + float(response.get('cooldown'))
+        # except:
+        #     print('Invaleid response', response)
 
     def examine(self, item_or_player):
         if self.waiting_time > time.time():
@@ -260,8 +271,18 @@ class APICalls:
         print(res.json())
         return res.json()
 
+
+response = requests.get(
+    url + '/bc/last_proof/', headers={'Authorization': token}).json()
+print(response)
+block = response['proof']
+difficulty = response['difficulty']
 c = APICalls()
-c.change_player_name()
+while True:
+    res = c.proof_of_work(response['proof'], response['difficulty'])
+    time.sleep(res["cooldown"])
+
+
 
 # c.init()
 # c.move('s')
