@@ -29,6 +29,8 @@ class APICalls:
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
+            # return the room data to the caller
+            return self.current_room
         except:
             print("Invalid response", response)
 
@@ -122,14 +124,15 @@ class APICalls:
             print("Invalid response", response)
 
     def valid_proof(self, block_string, proof, difficulty):
-        guess = f"{block_string}{proof}".encode()
+        #guess = f"{block_string}{proof}".encode()
+        guess = str(block_string)+str(proof).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:6] == "0" * difficulty
 
     def proof_of_work(self, block, difficulty):
         block_string = json.dumps(block, sort_keys=True).encode()
         proof = 0
-        while valid_proof(block_string, proof, difficulty) is False:
+        while self.valid_proof(block_string, proof, difficulty) is False:
             proof += 1
         self.new_proof = proof
 
