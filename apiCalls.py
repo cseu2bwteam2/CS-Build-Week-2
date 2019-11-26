@@ -132,12 +132,12 @@ class APICalls:
     def valid_proof(self, block_string, proof, difficulty):
         guess = f"{block_string}{proof}".encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:6] == "0" * difficulty
+        return guess_hash[:difficulty] == "0" * difficulty
 
     def proof_of_work(self, block, difficulty):
         block_string = json.dumps(block, sort_keys=True).encode()
         proof = 0
-        while valid_proof(block_string, proof, difficulty) is False:
+        while self.valid_proof(block_string, proof, difficulty) is False:
             proof += 1
         self.new_proof = proof
 
