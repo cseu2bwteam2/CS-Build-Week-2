@@ -34,6 +34,9 @@ class APICalls:
         except:
             print("Invalid response", response)
 
+    def get_room_id(self):
+        return self.current_room['room_id']
+
 
     def move(self, dir):
         if self.waiting_time > time.time():
@@ -49,17 +52,25 @@ class APICalls:
         except:
             print("Invalid response", response)
     
-    def take(self, item='tiny_treasure'):
-        if self.waiting_time > time.time():
-            time.sleep(self.waiting_time - time.time())
-        if item not in self.current_room['items']:
+    # refactored to read data in item list 
+    # and use it to pick if any
+    def take(self):
+        # if nothing to take 
+        if len(self.current_room['items']) == 0:
             print('No items')
-            return
-        response = requests.post(url + '/adv/take/', headers={'Authorization': token}, json={"name": item}).json()
-        try:
-            print(response)
-        except:
-            print("Invalid response", response)
+            return None
+        # there are item(s) to pick
+        else:
+            if self.waiting_time > time.time():
+                time.sleep(self.waiting_time - time.time())
+            item = self.current_room['items']
+            response = requests.post(url + '/adv/take/', headers={'Authorization': token}, json={"name": item[0]}).json()
+            try:
+                print(response)
+                return response
+            except:
+                print("Invalid response", response)
+
     def checkStatus(self):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
