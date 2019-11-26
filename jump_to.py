@@ -17,8 +17,8 @@ headers={
 'Authorization': token},
 ).json()
 
-
-def bfs():
+def jump_to_room(destination, current_room=current_room):
+    def bfs():
         q = Queue()
         q.enqueue([current_room["room_id"]])
         visited = set()
@@ -26,7 +26,7 @@ def bfs():
             path = q.dequeue()
             v = path[-1]
             if v not in visited:
-                if v == '1': ### change to whatever room you want to find
+                if v == destination: ### change to whatever room you want to find
                   return path
 
                 visited.add(v)
@@ -35,31 +35,38 @@ def bfs():
                     new_path.append(value)
                     q.enqueue(new_path)
 
-route_to_shop = bfs()
 
-print(route_to_shop)
+    route_to_shop = bfs()
 
-result_route = []
+    print(route_to_shop)
 
-for index in range(len(route_to_shop)):
-  for direction in ["n", "e", "w", "s"]:
-    try:
-      if grid[f"{route_to_shop[index]}"][direction] == route_to_shop[index +1]:
-        result_route.append(direction)
-    except KeyError:
-      None
-    except IndexError:
-      None
+    result_route = []
 
-############################
+    for index in range(len(route_to_shop)):
+        for direction in ["n", "e", "w", "s"]:
+            try:
+                if grid[f"{route_to_shop[index]}"][direction] == route_to_shop[index +1]:
+                    result_route.append(direction)
+            except KeyError:
+                None
+            except IndexError:
+                None
 
-counter = 0
 
-while current_room["room_id"] != 1: ## change to whatever room you searching for
-    for direction in result_route:
-        counter += 1 
-        time.sleep(current_room['cooldown'])
-        new_room = requests.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/move/', json={'direction': f'{direction}',
-        "next_room_id": f'{route_to_shop[counter]}'}, headers={'Authorization': token}).json()
-        current_room = new_room
-        print(current_room)
+    counter = 0
+
+    while current_room["room_id"] != destination: ## change to whatever room you searching for
+        for direction in result_route:
+            if counter < len(route_to_shop):
+                time.sleep(current_room['cooldown'])
+                new_room = requests.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/move/', json={'direction': f'{direction}',
+                "next_room_id": f'{route_to_shop[counter]}'}, headers={'Authorization': token}).json()
+                current_room = new_room
+                print(current_room)
+                counter += 1 
+            else:
+                exit()
+
+
+
+jump_to_room('40')
