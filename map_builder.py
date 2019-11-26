@@ -4,13 +4,12 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from queue import Queue
+from util import Queue
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
 
 # Read the credential from the .env file
 token = os.getenv('TOKEN')
 player_name = os.getenv('PLAYER')
-print(token)
 # directions to comeback
 go_back = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
