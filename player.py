@@ -31,22 +31,25 @@ class Player:
         # Go to item
         self.travel(current_room_id, item, fly, dash)
         # Pick up item
+        print("taking that item")
         data = self.call.take()
+        # To synch the local file
+        # Remove item from rooms_data
+        for room in rooms_data:
+            # find the matching room
+            if room['room_id'] == current_room_id:
+                if len(room['items']) > 0:
+                    # since we can only have one item at 
+                    # a time in items list, we can empty it
+                    print("clearing local file")
+                    room['items'] = []
+        # update the file
+        with open("rooms_data_copy.py", "w") as f:
+            f.write(json.dumps(rooms_data))
         # their was a successful pickup
         if data:
             # pause to cool
             # sleep(data["cooldown"])
-            # Remove item from rooms_data
-            for room in rooms_data:
-                # find the matching room
-                if str(rooms['room_id']) == current_room_id:
-                    if len(room['items']) > 0:
-                        # since we can only have one item at 
-                        # a time in items list, we can empty it
-                        room['items'] = []
-            # update the file
-            with open("rooms_data_copy.py", "w") as f:
-                f.write(json.dumps(rooms_data))
             print("******  Picked up "+str(data["items"][0])+" ******\n")
             return True
         # no item was picked
@@ -62,6 +65,7 @@ class Player:
             room_directions = json.loads(f.read())
         
         # Another traversal
+        print("next destination is " + str(destination))
         traverse = self.traverse_path(room_directions, room_data, current_room_id, destination)
         # Could not get there
         if not traverse:

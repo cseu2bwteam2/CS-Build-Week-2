@@ -26,6 +26,7 @@ class APICalls:
 
     def init(self):
         response = requests.get(url + '/adv/init/', headers={'Authorization': token}, json={"player": self.player}).json()
+        print("Init with " + str(response["room_id"]))
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
@@ -50,7 +51,7 @@ class APICalls:
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
-            print(self.current_room)
+            #print("Its this one" + str(self.current_room))
             return self.current_room
         except:
             print("Invalid response", response)
@@ -59,6 +60,7 @@ class APICalls:
     # and use it to pick if any
     def take(self):
         # if nothing to take 
+        #print("Inside the Taking"+ str(self.current_room))
         if len(self.current_room['items']) == 0:
             print('No items')
             return None
