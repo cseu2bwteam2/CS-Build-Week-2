@@ -187,6 +187,7 @@ class APICalls:
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
+            return self.current_room
             print(self.current_room)
         except:
             print("Invalid response", response)

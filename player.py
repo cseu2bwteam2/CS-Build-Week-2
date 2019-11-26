@@ -15,17 +15,16 @@ class Player:
     def __init__(self):
         self.player = player
         self.call = APICalls()
-        self.room = self.call.init()
 
     # keep looking until we land 
     # in a room with item to take
-    def lookup_for_treasure(self):
+    def lookup_for_treasure(self, current_room_id, item, fly = False, dash = False):
         rooms_data = []
-        with open("room_details_copy.py", "r") as f:
+        with open("room_data_copy.py", "r") as f:
             rooms_data = json.loads(f.read())
 
         # Go to item
-        self.go_to(current_room_id, item_name, can_fly, can_dash)
+        self.travel(current_room_id, item, fly, dash)
         # Pick up item
         data = self.call.take()
         # their was a successful pickup
@@ -33,7 +32,6 @@ class Player:
             # pause to cool
             # sleep(data["cooldown"])
             # Remove item from rooms_data
-            current_room_id = self.room["room_id"]
             for room in rooms_data:
                 # find the matching room
                 if str(rooms['room_id']) == current_room_id:
@@ -49,7 +47,63 @@ class Player:
         # no item was picked
         return False
 
+    def travel(self, destination, current_room_id, fly = False, dash = False):
+        room_data = []
+        room_directions = {}
+        # read the files
+        with open("room_data_copy.py", "r") as f:
+            room_data = json.loads(f.read())
+        with open("room_graph_copy.py", "r") as f:
+            room_directions = json.loads(f.read())
+        
+        # Another traversal
+        traverse = traverse_path(room_directions, room_data, current_room_id, destination)
+        # Could not get there
+        if not traverse:
+            print("Could not find a way to " +str(destination)")
+            return
+        # Found a way
+        for step in range(len(traverse)):
+            data = {}
+            flew = False
+            dashed = False
+            if fly:
+                for room in room_data:
+                    if str(room['room_id']) == current_room_id:
+                        # we fly to get up faster
+                        if room['terrain'].lower() == "elevated" and 'terrain' in room:
+                            data = APICalls.flight(traverse[step])
+                            used_flight = True
+                            break
+                        else:
+                            break
+            # dash if can dash and didn't use fly and there is more rooms to dash through than 1
+            if not flew and dash:
+                dash_destination = [traverse[step]]
+                jump = step + 1
+                while jump < len(traverse):
+                    if traverse[jump] == dash_destination[jump - 1]:
+                        dash_destination.append(traverse[jump])
+                    else:
+                        break
+                if len(dash_destination) > 1:
+                    traversed_id = []
+                    flip_room = current_room_id
+                    for direction in dash_destination:
+                        traversed_id.append(room_map[flip_room][direction])
+                        flip_room = room_map[flip_room][direction]
+                    num_of_rooms = len(traversed_id)
+                    traversed_id = ','.join(traversed_id)
+                    data = APICalls.dash(traverse[step], num_of_rooms, traversed_id)
+                    step += len(dash_destination) - 1
+                    dashed = True                    
+            # boring walking
+            if not dashed and not flew:
+                next_room_id = room_directions[current_room_id][traverse[step]]
+                data = APICalls.move(traverse[step])
 
-    def go_to(self):
-    
-    def take(self):
+            current_room_id = str(data['room_id'])
+            sleep(data["cooldown"])
+            print(data)
+
+    def traverse_path(self, room_directions, room_data, current_room_id, destination):
