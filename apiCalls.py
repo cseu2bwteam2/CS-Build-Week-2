@@ -270,7 +270,6 @@ difficulty = response['difficulty']
 c = APICalls()
 while True:
     c.proof_of_work(response['proof'], response['difficulty'])
-    print(c.new_proof, 'pppprrrooofff---')
     res = c.mineCoin(c.new_proof)
     time.sleep(res["cooldown"])
 
