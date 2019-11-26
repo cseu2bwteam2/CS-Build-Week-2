@@ -138,14 +138,14 @@ class APICalls:
         return guess_hash[:difficulty] == "0" * difficulty
 
     def proof_of_work(self, block, difficulty):
-
         block_string = json.dumps(block, sort_keys=True).encode()
-        proof = 0
+        proof = 100000
         while self.valid_proof(block_string, proof, difficulty) is False:
-            proof = random.getrandbits(64)
-            print(proof)
+            proof += 1
+            # random.getrandbits(32)
         self.new_proof = proof
-        print(proof)
+        print('proof', proof)
+        print('last_proof', block)
         if (self.new_proof > 0):
             return self.mineCoin(proof)
 
