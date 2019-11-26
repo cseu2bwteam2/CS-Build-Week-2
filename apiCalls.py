@@ -136,7 +136,7 @@ class APICalls:
     def mineCoin(self, proof):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
-        response = requests.post(url + '/bc/mine/', headers={'Authorization': token}, json={"proof":proof}).json()
+        response = requests.post(url + '/bc/mine/', headers={'Authorization': token}, json={"proof":int(proof)}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
