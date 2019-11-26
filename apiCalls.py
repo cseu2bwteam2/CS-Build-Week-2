@@ -133,16 +133,13 @@ class APICalls:
     def valid_proof(self, block_string, proof, difficulty):
         guess = f"{block_string}{proof}".encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        # print('0' * difficulty)
-        # print(guess_hash[:difficulty])
         return guess_hash[:difficulty] == "0" * difficulty
 
     def proof_of_work(self, block, difficulty):
         block_string = json.dumps(block, sort_keys=True).encode()
         proof = 100000
         while self.valid_proof(block_string, proof, difficulty) is False:
-            proof += 1
-            # random.getrandbits(32)
+            proof = random.getrandbits(32)
         self.new_proof = proof
         print('proof', proof)
         print('last_proof', block)
