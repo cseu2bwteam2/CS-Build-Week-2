@@ -152,11 +152,6 @@ class APICalls:
         print(response)
 
         return response
-        # try:
-        #     print(response)
-        #     self.waiting_time = time.time() + float(response.get('cooldown'))
-        # except:
-        #     print('Invaleid response', response)
 
     def examine(self, item_or_player):
         if self.waiting_time > time.time():
