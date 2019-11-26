@@ -3,6 +3,7 @@ import requests
 import time
 import hashlib
 import json
+from time import sleep
 
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
@@ -25,11 +26,11 @@ class APICalls:
 
     def init(self):
         response = requests.get(url + '/adv/init/', headers={'Authorization': token}, json={"player": self.player}).json()
-
         try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
             # return the room data to the caller
+            sleep(response["cooldown"])
             return self.current_room
         except:
             print("Invalid response", response)
@@ -41,6 +42,7 @@ class APICalls:
     def move(self, dir):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
+        print("Moved to room " + str(self.current_room["room_id"]))
         if dir not in self.current_room['exits']:
             print('You cant move')
             return
@@ -49,6 +51,7 @@ class APICalls:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
             print(self.current_room)
+            return self.current_room
         except:
             print("Invalid response", response)
     
@@ -64,6 +67,7 @@ class APICalls:
             if self.waiting_time > time.time():
                 time.sleep(self.waiting_time - time.time())
             item = self.current_room['items']
+            print("Picking item: "+str(item))
             response = requests.post(url + '/adv/take/', headers={'Authorization': token}, json={"name": item[0]}).json()
             try:
                 print(response)
@@ -81,7 +85,7 @@ class APICalls:
         except:
             print("Invalid response", response)
 
-    def sell(self, item='tiny_treasure'):
+    def sell(self, item='tiny treasure'):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
         if self.current_room['title'] != 'Shop' or self.status['inventory'].length < 1:
@@ -92,6 +96,7 @@ class APICalls:
         try:
             print(response)
             self.status = response
+            return response
         except:
             print("Invalid response", response)
 

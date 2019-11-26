@@ -3,6 +3,8 @@ import requests
 import json
 from apiCalls import APICalls
 from queue import Queue
+from time import sleep
+
 
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
@@ -16,12 +18,14 @@ class Player:
     def __init__(self):
         self.player = player
         self.call = APICalls()
+        self.call.init()
 
     # keep looking until we land 
     # in a room with item to take
     def lookup_for_treasure(self, current_room_id, item, fly = False, dash = False):
+        print("Hunting in :" + str(current_room_id))
         rooms_data = []
-        with open("room_data_copy.py", "r") as f:
+        with open("rooms_data_copy.py", "r") as f:
             rooms_data = json.loads(f.read())
 
         # Go to item
@@ -43,25 +47,25 @@ class Player:
             # update the file
             with open("rooms_data_copy.py", "w") as f:
                 f.write(json.dumps(rooms_data))
-            print(f"\n******  Picked up {data["items"][0]}  ******\n")
+            print("******  Picked up "+str(data["items"][0])+" ******\n")
             return True
         # no item was picked
         return False
 
-    def travel(self, destination, current_room_id, fly = False, dash = False):
+    def travel(self, current_room_id, destination, fly = False, dash = False):
         room_data = []
         room_directions = {}
         # read the files
-        with open("room_data_copy.py", "r") as f:
+        with open("rooms_data_copy.py", "r") as f:
             room_data = json.loads(f.read())
-        with open("room_graph_copy.py", "r") as f:
+        with open("room_directions_copy.py", "r") as f:
             room_directions = json.loads(f.read())
         
         # Another traversal
-        traverse = traverse_path(room_directions, room_data, current_room_id, destination)
+        traverse = self.traverse_path(room_directions, room_data, current_room_id, destination)
         # Could not get there
         if not traverse:
-            print("Could not find a way to " +str(destination)")
+            print("Could not find a way to "+str(destination))
             return
         # Found a way
         for step in range(len(traverse)):
@@ -73,7 +77,7 @@ class Player:
                     if str(room['room_id']) == current_room_id:
                         # we fly to get up faster
                         if room['terrain'].lower() == "elevated" and 'terrain' in room:
-                            data = APICalls.flight(traverse[step])
+                            data = self.call.flight(traverse[step])
                             used_flight = True
                             break
                         else:
@@ -91,18 +95,17 @@ class Player:
                     traversed_id = []
                     flip_room = current_room_id
                     for direction in dash_destination:
-                        traversed_id.append(room_map[flip_room][direction])
-                        flip_room = room_map[flip_room][direction]
+                        traversed_id.append(room_directions[flip_room][direction])
+                        flip_room = room_directions[flip_room][direction]
                     num_of_rooms = len(traversed_id)
                     traversed_id = ','.join(traversed_id)
-                    data = APICalls.dash(traverse[step], num_of_rooms, traversed_id)
+                    data = self.call.dash(traverse[step], num_of_rooms, traversed_id)
                     step += len(dash_destination) - 1
                     dashed = True                    
             # boring walking
             if not dashed and not flew:
-                next_room_id = room_directions[current_room_id][traverse[step]]
-                data = APICalls.move(traverse[step])
-
+                next_room_id = room_directions[str(current_room_id)][traverse[step]]
+                data = self.call.move(traverse[step])
             current_room_id = str(data['room_id'])
             sleep(data["cooldown"])
             print(data)
@@ -117,7 +120,7 @@ class Player:
         while q.size() > 0:
             current_room = q.dequeue()
             explored.add(current_room)
-            for room_lookup in room_map[current_room].values():
+            for room_lookup in room_directions[str(current_room)].values():
                 if room_lookup in explored or room_lookup == '?':
                     continue
                 # flipping
@@ -142,8 +145,13 @@ class Player:
                     the_way = ways[room_lookup]
                     exits = []
                     for step in range(len(the_way) - 1):
-                        exits.append(directionToRoom(
-                            room_map, the_way[step], the_way[step + 1]))
+                        exits.append(self.what_is_the_direction(room_directions, str(the_way[step]), the_way[step + 1]))
                     return exits
                 q.enqueue(room_lookup)
+        return None
+
+    def what_is_the_direction(self,room_directions, room_id, next_room):
+        for direction, room in room_directions[room_id].items():
+            if room == next_room:
+                return direction
         return None
