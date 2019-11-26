@@ -35,11 +35,11 @@ def jump_to_room(destination, current_room=current_room):
 
     count = 0
 
-    while current_room["room_id"] != destination: ## change to whatever room you searching for
-        for movement in routes:
+    while current_room["room_id"] != destination:
+        for movement_direction in routes:
             if count < len(route_to_shop):
                 time.sleep(current_room['cooldown'])
-                new_room = requests.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/move/', json={'direction': f'{movement}',
+                new_room = requests.post(url + '/adv/move/', json={'direction': f'{movement_direction}',
                 "next_room_id": f'{route_to_shop[count]}'}, headers={'Authorization': token}).json()
                 current_room = new_room
                 print(current_room)
