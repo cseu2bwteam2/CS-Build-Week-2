@@ -136,32 +136,21 @@ class APICalls:
         return guess_hash[:difficulty] == "0" * difficulty
 
     def proof_of_work(self, block, difficulty):
-        block_string = json.dumps(block, sort_keys=True).encode()
-        proof = 100000
-        while self.valid_proof(block_string, proof, difficulty) is False:
+        proof = 100000000
+        while self.valid_proof(block, proof, difficulty) is False:
             proof = random.getrandbits(32)
         self.new_proof = proof
-        print('proof', proof)
-        print('last_proof', block)
-        if (self.new_proof > 0):
-            return self.mineCoin(proof)
 
     def mineCoin(self, proof):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
         response = requests.post(
             url + '/bc/mine/', headers={'Authorization': token}, json={"proof": int(proof)})
-        if response.status_code == 400:
-            self.new_proof = 0
+
         response = response.json()
         print(response)
 
         return response
-        # try:
-        #     print(response)
-        #     self.waiting_time = time.time() + float(response.get('cooldown'))
-        # except:
-        #     print('Invaleid response', response)
 
     def examine(self, item_or_player):
         if self.waiting_time > time.time():
@@ -279,9 +268,9 @@ block = response['proof']
 difficulty = response['difficulty']
 c = APICalls()
 while True:
-    res = c.proof_of_work(response['proof'], response['difficulty'])
+    c.proof_of_work(response['proof'], response['difficulty'])
+    res = c.mineCoin(c.new_proof)
     time.sleep(res["cooldown"])
-
 
 
 # c.init()
