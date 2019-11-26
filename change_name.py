@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
 
-from goto import goto
+# from goto import goto
 baseUrl = os.environ['BASE_URL']
 token = os.environ['TOKEN']
 player = os.environ['PLAYER']

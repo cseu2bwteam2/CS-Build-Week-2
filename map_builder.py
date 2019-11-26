@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 from queue import Queue
-
+load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
 
 # Read the credential from the .env file
 token = os.getenv('TOKEN')
 player_name = os.getenv('PLAYER')
-
+print(token)
 # directions to comeback
 go_back = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
@@ -154,7 +154,7 @@ while queue.size() > 0:
     direction = queue.dequeue()
     # get the player moving
     response = requests.post("https://lambda-treasure-hunt.herokuapp.com/api/adv/move/", json={"direction": direction}, headers={'Authorization': token})
-
+    print(response, 'resss')
     # parse the response
     data = response.json()
     # add to the rooms_data
