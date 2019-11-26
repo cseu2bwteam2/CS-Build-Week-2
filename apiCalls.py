@@ -25,7 +25,7 @@ class APICalls:
     def init(self):
         response = requests.get(
             url + '/adv/init/', headers={'Authorization': token}, json={"player": self.player}).json()
-       
+
         try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
@@ -144,7 +144,8 @@ class APICalls:
     def mineCoin(self, proof):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
-        response = requests.post(url + '/bc/mine/', headers={'Authorization': token}, json={"proof":int(proof)}).json()
+        response = requests.post(
+            url + '/bc/mine/', headers={'Authorization': token}, json={"proof": int(proof)}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -154,8 +155,9 @@ class APICalls:
     def examine(self, item_or_player):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
-        
-        response = requests.post(url + '/adv/examine/', headers={'Authorization': token}, json={"name":item_or_player}).json()
+
+        response = requests.post(
+            url + '/adv/examine/', headers={'Authorization': token}, json={"name": item_or_player}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -166,7 +168,8 @@ class APICalls:
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
 
-        response = requests.post(url + '/adv/wear/', headers={'Authorization': token}, json={"name":wearables}).json()
+        response = requests.post(
+            url + '/adv/wear/', headers={'Authorization': token}, json={"name": wearables}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -176,9 +179,10 @@ class APICalls:
     def flight(self, dir):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
-        
-        response = requests.post(url + '/adv/fly/', headers={'Authorization': token}, json={"direction": dir}).json()
-        try: 
+
+        response = requests.post(
+            url + '/adv/fly/', headers={'Authorization': token}, json={"direction": dir}).json()
+        try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
             print(self.current_room)
@@ -189,7 +193,8 @@ class APICalls:
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
 
-        response = requests.post(url + '/adv/carry/', headers={'Authorization': token}, json={"name":item}).json()
+        response = requests.post(
+            url + '/adv/carry/', headers={'Authorization': token}, json={"name": item}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -200,7 +205,8 @@ class APICalls:
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
 
-        response = requests.post(url + '/adv/recieve/', headers={'Authorization': token}).json()
+        response = requests.post(
+            url + '/adv/recieve/', headers={'Authorization': token}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -211,7 +217,8 @@ class APICalls:
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
 
-        response = requests.post(url + '/adv/transmogrify/', headers={'Authorization': token}, json={"name":item}).json()
+        response = requests.post(
+            url + '/adv/transmogrify/', headers={'Authorization': token}, json={"name": item}).json()
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -224,18 +231,33 @@ class APICalls:
         if dir not in self.current_room['exits']:
             print('You cant move')
             return
-        
-        response = requests.post(url + '/adv/dash/', headers={'Authorization': token}, json={"direction":dir, "num_rooms": num_of_rooms, "next_room_ids": next_rooms}).json()
-        
-        try: 
+
+        response = requests.post(url + '/adv/dash/', headers={'Authorization': token}, json={
+                                 "direction": dir, "num_rooms": num_of_rooms, "next_room_ids": next_rooms}).json()
+
+        try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
             print(self.current_room)
         except:
             print("Invalid response", response)
 
+    def get_current_room(self):
+        res = requests.get(
+            url + "/adv/init/",
+            headers={'Authorization': token}
+        )
+        res_json = res.json()
+        time.sleep(res_json["cooldown"])
+        return res_json["room_id"]
 
-
+    def change_player_name(self):
+        res = requests.post(
+            url + "/adv/change_name/",
+            headers={'Authorization': token},
+            json={"name": player, "confirm": "aye"}
+        )
+        return res.json()
 
 c = APICalls()
 

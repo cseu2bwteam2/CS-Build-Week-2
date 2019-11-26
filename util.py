@@ -13,3 +13,21 @@ class Queue():
 
     def size(self):
         return len(self.queue)
+
+
+def bfs(room_id, destination, room_grid):
+    q = Queue()
+    q.enqueue(room_id)
+    visited = set()
+    while q.size() > 0:
+        path = q.dequeue()
+        v = path[-1]
+        if v not in visited:
+            if v == destination:  # change to whatever room you want to find
+                return path
+
+            visited.add(v)
+            for key, value in room_grid[f'{v}'].items():
+                new_path = list(path)
+                new_path.append(value)
+                q.enqueue(new_path)
