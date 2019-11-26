@@ -19,33 +19,33 @@ headers={
 
 def jump_to_room(destination, current_room=current_room):
     route_to_shop = bfs([current_room["room_id"]], destination, room_grid)
-    result_route = []
+    routes = []
 
     for index in range(len(route_to_shop)):
         for direction in ["n", "e", "w", "s"]:
             try:
                 if room_grid[f"{route_to_shop[index]}"][direction] == route_to_shop[index +1]:
-                    result_route.append(direction)
+                    routes.append(direction)
             except KeyError:
                 None
             except IndexError:
                 None
 
 
-    counter = 0
+    count = 0
 
     while current_room["room_id"] != destination: ## change to whatever room you searching for
-        for direction in result_route:
-            if counter < len(route_to_shop):
+        for movement in routes:
+            if count < len(route_to_shop):
                 time.sleep(current_room['cooldown'])
-                new_room = requests.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/move/', json={'direction': f'{direction}',
-                "next_room_id": f'{route_to_shop[counter]}'}, headers={'Authorization': token}).json()
+                new_room = requests.post('https://lambda-treasure-hunt.herokuapp.com/api/adv/move/', json={'direction': f'{movement}',
+                "next_room_id": f'{route_to_shop[count]}'}, headers={'Authorization': token}).json()
                 current_room = new_room
                 print(current_room)
-                counter += 1 
+                count += 1 
             else:
                 exit()
 
 
 
-jump_to_room('1')
+jump_to_room('467')

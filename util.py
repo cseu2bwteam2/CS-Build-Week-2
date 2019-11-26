@@ -23,7 +23,7 @@ def bfs(room_id, destination, room_grid):
         path = q.dequeue()
         v = path[-1]
         if v not in visited:
-            if v == destination:  # change to whatever room you want to find
+            if v == destination:
                 return path
 
             visited.add(v)
