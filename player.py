@@ -112,7 +112,14 @@ class Player:
                 print("No Dash nor Flight")
                 next_room_id = room_directions[str(current_room_id)][traverse[step]]
                 data = self.call.move(traverse[step])
-            print("The data after travel" + str(data))
+                print("The data after travel first tentative " + str(data))
+                if "room_id" not in data and "cooldown" in data:
+                    # their was a cooldown violation
+                    # we cool down
+                    sleep(data["cooldown"])
+                    # then try again
+                    data = self.call.move(traverse[step])
+                    print("The data second tentative " + str(data))
             current_room_id = str(data['room_id'])
             sleep(data["cooldown"])
             print(data)
