@@ -25,7 +25,7 @@ class Player:
     def lookup_for_treasure(self, current_room_id, item, fly = False, dash = False):
         print("Hunting in :" + str(current_room_id))
         rooms_data = []
-        with open("rooms_data_copy.py", "r") as f:
+        with open("rooms_data_final.py", "r") as f:
             rooms_data = json.loads(f.read())
 
         # Go to item
@@ -44,7 +44,7 @@ class Player:
                     print("clearing local file")
                     room['items'] = []
         # update the file
-        with open("rooms_data_copy.py", "w") as f:
+        with open("rooms_data_final.py", "w") as f:
             f.write(json.dumps(rooms_data))
         # their was a successful pickup
         if data:
@@ -58,9 +58,9 @@ class Player:
         room_data = []
         room_directions = {}
         # read the files
-        with open("rooms_data_copy.py", "r") as f:
+        with open("rooms_data_final.py", "r") as f:
             room_data = json.loads(f.read())
-        with open("room_directions_copy.py", "r") as f:
+        with open("rooms_directions.py", "r") as f:
             room_directions = json.loads(f.read())
         
         # Another traversal

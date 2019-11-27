@@ -81,6 +81,21 @@ def room_walker(queue):
                     if current_directions[direction] == path:
                         queue.enqueue(direction)
 
+def cleaner():
+    rooms = set()
+    clean_data = []
+    rooms_data = []
+
+    with open("rooms_data.py", "r") as f:
+        rooms_data = json.loads(f.read())
+
+    for room in rooms_data:
+        if room["room_id"] not in rooms:
+            rooms.add(room["room_id"])
+            clean_data.append(room)
+
+    with open("rooms_data_final.py", "w") as f:
+        f.write(json.dumps(clean_data))
 
 def BF_traversal(rooms_data, rooms_directions):
     # New local queue
@@ -116,6 +131,12 @@ def BF_traversal(rooms_data, rooms_directions):
                     q.enqueue(path)
     # return None if no unexplored room is found
     return None
+
+
+
+
+
+
 
 # Itnitalise to the starting room
 # Write to the files for mapping
@@ -189,3 +210,8 @@ while queue.size() > 0:
     sleep(data["cooldown"])
     # Then walk again
     room_walker(queue)
+
+#cleanup the room once over
+cleaner()
+
+
