@@ -2,7 +2,7 @@ import os
 import requests
 import json
 from apiCalls import APICalls
-from queue import Queue
+from util import Queue
 from time import sleep
 
 

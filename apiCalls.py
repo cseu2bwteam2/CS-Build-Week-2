@@ -290,18 +290,18 @@ class APICalls:
         print(res.json())
         return res.json()
 
-
-response = requests.get(
-    url + '/bc/last_proof/', headers={'Authorization': token}).json()
-print(response)
-block = response['proof']
-difficulty = response['difficulty']
-c = APICalls()
-while True:
-    c.proof_of_work(response['proof'], response['difficulty'])
-    res = c.mineCoin(c.new_proof)
-    time.sleep(res["cooldown"])
-
+# ========== Uncomment this code to mine
+# response = requests.get(
+#     url + '/bc/last_proof/', headers={'Authorization': token}).json()
+# print(response)
+# block = response['proof']
+# difficulty = response['difficulty']
+# c = APICalls()
+# while True:
+#     c.proof_of_work(response['proof'], response['difficulty'])
+#     res = c.mineCoin(c.new_proof)
+#     time.sleep(res["cooldown"])
+# =========== Uncomment this code to mine
 
 # c.init()
 # c.move('s')
