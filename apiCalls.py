@@ -4,6 +4,7 @@ import time
 import hashlib
 import json
 import random
+from time import sleep
 
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
@@ -24,18 +25,25 @@ class APICalls:
         self.new_proof = 0
 
     def init(self):
-        response = requests.get(
-            url + '/adv/init/', headers={'Authorization': token}, json={"player": self.player}).json()
 
-        try:
+        response = requests.get(url + '/adv/init/', headers={'Authorization': token}, json={"player": self.player}).json()
+        try: 
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
+            # return the room data to the caller
+            sleep(response["cooldown"])
+            return self.current_room
         except:
             print("Invalid response", response)
+
+
+    def get_room_id(self):
+        return self.current_room['room_id']
 
     def move(self, dir):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
+        print("Moved to room " + str(self.current_room["room_id"]))
         if dir not in self.current_room['exits']:
             print('You cant move')
             return
@@ -45,22 +53,35 @@ class APICalls:
         try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
-            print(self.current_room)
+            #print("Its this one" + str(self.current_room))
+            time.sleep(response["cooldown"])
+            return self.current_room
         except:
             print("Invalid response", response)
 
-    def take(self, item='tiny_treasure'):
-        if self.waiting_time > time.time():
-            time.sleep(self.waiting_time - time.time())
-        if item not in self.current_room['items']:
+    
+    # refactored to read data in item list 
+    # and use it to pick if any
+    def take(self):
+        # if nothing to take 
+        #print("Inside the Taking"+ str(self.current_room))
+        if len(self.current_room['items']) == 0:
             print('No items')
-            return
-        response = requests.post(
-            url + '/adv/take/', headers={'Authorization': token}, json={"name": item}).json()
-        try:
-            print(response)
-        except:
-            print("Invalid response", response)
+            return None
+        # there are item(s) to pick
+        else:
+            if self.waiting_time > time.time():
+                time.sleep(self.waiting_time - time.time())
+            item = self.current_room['items']
+            print("Picking item: "+str(item))
+            response = requests.post(url + '/adv/take/', headers={'Authorization': token}, json={"name": item[0]}).json()
+            try:
+                print(response)
+                self.waiting_time = time.time() + float(response.get('cooldown'))
+
+                return response
+            except:
+                print("Invalid response", response)
 
     def checkStatus(self):
         if self.waiting_time > time.time():
@@ -73,18 +94,23 @@ class APICalls:
         except:
             print("Invalid response", response)
 
-    def sell(self, item='tiny_treasure'):
+    def sell(self, item='tiny treasure'):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
         if self.current_room['title'] != 'Shop' or self.status['inventory'].length < 1:
             print('Unable to sell treasure')
             return
+        if 'tiny treasure' not in self.status['inventory']:
+            item = 'small treasure'
 
         response = requests.post(
             url + '/adv/sell/', headers={'Authorization': token}, json={"name": item, 'confirm': 'yes'}).json()
         try:
             print(response)
             self.status = response
+            self.waiting_time = time.time() + float(response.get('cooldown'))
+
+            return response
         except:
             print("Invalid response", response)
 
@@ -132,6 +158,7 @@ class APICalls:
 
     def valid_proof(self, block_string, proof, difficulty):
         guess = f"{block_string}{proof}".encode()
+        # guess = str(block_string)+str(proof).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:difficulty] == "0" * difficulty
 
@@ -139,6 +166,7 @@ class APICalls:
         proof = 100000000
         while self.valid_proof(block, proof, difficulty) is False:
             proof = random.getrandbits(32)
+
         self.new_proof = proof
 
     def mineCoin(self, proof):
@@ -185,7 +213,8 @@ class APICalls:
         try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
-            print(self.current_room)
+            sleep(response["cooldown"])
+            return self.current_room
         except:
             print("Invalid response", response)
 
@@ -238,7 +267,8 @@ class APICalls:
         try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
-            print(self.current_room)
+            sleep(response["cooldown"])
+            return self.current_room
         except:
             print("Invalid response", response)
 
