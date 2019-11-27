@@ -23,6 +23,8 @@ while not_enough_gold:
     response = call.sell("tiny treasure")
 
     # relax a bit
+    if response == None:
+        continue
     sleep(response["cooldown"])
 
     gold = response["gold"]

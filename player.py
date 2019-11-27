@@ -112,17 +112,23 @@ class Player:
                 print("No Dash nor Flight")
                 next_room_id = room_directions[str(current_room_id)][traverse[step]]
                 data = self.call.move(traverse[step])
+                
                 print("The data after travel first tentative " + str(data))
-                if "room_id" not in data and "cooldown" in data:
+                if data and "room_id" not in data and "cooldown" in data:
                     # their was a cooldown violation
                     # we cool down
+                    print('Cooling down')
                     sleep(data["cooldown"])
                     # then try again
-                    data = self.call.move(traverse[step])
-                    print("The data second tentative " + str(data))
-            current_room_id = str(data['room_id'])
-            sleep(data["cooldown"])
-            print(data)
+                    # data = self.call.move(traverse[step])
+                    # print("The data second tentative " + str(data))
+                    break
+                elif data == None:
+                    break
+                else:
+                    current_room_id = str(data['room_id'])
+                    sleep(data["cooldown"])
+                    print(data)
 
     def traverse_path(self, room_directions, room_data, room_id, destination):
         q = Queue()

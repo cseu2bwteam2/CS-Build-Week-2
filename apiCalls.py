@@ -73,6 +73,8 @@ class APICalls:
             response = requests.post(url + '/adv/take/', headers={'Authorization': token}, json={"name": item[0]}).json()
             try:
                 print(response)
+                self.waiting_time = time.time() + float(response.get('cooldown'))
+
                 return response
             except:
                 print("Invalid response", response)
@@ -93,11 +95,15 @@ class APICalls:
         if self.current_room['title'] != 'Shop' or self.status['inventory'].length < 1:
             print('Unable to sell treasure')
             return
+        if 'tiny treasure' not in self.status['inventory']:
+            item = 'small treasure'
 
         response = requests.post(url + '/adv/sell/', headers={'Authorization': token}, json={"name": item, 'confirm': 'yes'}).json()
         try:
             print(response)
             self.status = response
+            self.waiting_time = time.time() + float(response.get('cooldown'))
+
             return response
         except:
             print("Invalid response", response)
