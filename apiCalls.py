@@ -91,17 +91,19 @@ class APICalls:
         try:
             print(response)
             self.status = response
+            self.waiting_time = time.time() + float(response.get('cooldown'))
+
         except:
             print("Invalid response", response)
 
     def sell(self, item='tiny treasure'):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
-        if self.current_room['title'] != 'Shop' or self.status['inventory'].length < 1:
-            print('Unable to sell treasure')
-            return
-        if 'tiny treasure' not in self.status['inventory']:
-            item = 'small treasure'
+        # if self.current_room['title'] != 'Shop' or self.status['inventory'].length < 1:
+        #     print('Unable to sell treasure')
+        #     return
+        # if 'tiny treasure' not in self.status['inventory']:
+        #     item = 'small treasure'
 
         response = requests.post(
             url + '/adv/sell/', headers={'Authorization': token}, json={"name": item, 'confirm': 'yes'}).json()
@@ -180,7 +182,7 @@ class APICalls:
 
         return response
 
-    def examine(self, item_or_player):
+    def examine(self, item_or_player='WELL'):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
 
@@ -189,8 +191,10 @@ class APICalls:
         try:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
+            with open("description.py", "w") as code:
+                code.write(response['description'])
         except:
-            print('Invaleid response', response)
+            print('Invalid response', response)
 
     def equipment(self, wearables):
         if self.waiting_time > time.time():
@@ -202,7 +206,7 @@ class APICalls:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
         except:
-            print('Invaleid response', response)
+            print('Invalid response', response)
 
     def flight(self, dir):
         if self.waiting_time > time.time():
@@ -228,7 +232,7 @@ class APICalls:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
         except:
-            print('Invaleid response', response)
+            print('Invalid response', response)
 
     def receive(self, item):
         if self.waiting_time > time.time():
@@ -240,7 +244,7 @@ class APICalls:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
         except:
-            print('Invaleid response', response)
+            print('Invalid response', response)
 
     def transmogrify(self, item):
         if self.waiting_time > time.time():
@@ -252,7 +256,7 @@ class APICalls:
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
         except:
-            print('Invaleid response', response)
+            print('Invalid response', response)
 
     def dash(self, dir, num_of_rooms, next_rooms):
         if self.waiting_time > time.time():
@@ -281,11 +285,11 @@ class APICalls:
         time.sleep(res_json["cooldown"])
         return res_json["room_id"]
 
-    def change_player_name(self):
+    def change_player_name(self, name):
         res = requests.post(
             url + "/adv/change_name/",
             headers={'Authorization': token},
-            json={"name": player, "confirm": "aye"}
+            json={"name": name, "confirm": "aye"}
         )
         print(res.json())
         return res.json()

@@ -4,6 +4,8 @@ import requests
 import os
 import time
 from util import Queue, bfs
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
 
 url = os.environ['BASE_URL']
 token = os.getenv('TOKEN')
@@ -44,9 +46,10 @@ def jump_to_room(destination, current_room=current_room):
                 current_room = new_room
                 print(current_room)
                 count += 1 
+                time.sleep(current_room['cooldown'])
             else:
-                exit()
+                # exit()
+                return 
 
 
-
-jump_to_room('1')
+# jump_to_room('1')
