@@ -1,11 +1,8 @@
-
 import json
 import requests
 import os
 import time
 from util import Queue, bfs
-from dotenv import load_dotenv
-load_dotenv(os.path.join(os.getcwd() + '/', '.env'))
 
 url = os.environ['BASE_URL']
 token = os.getenv('TOKEN')
@@ -27,7 +24,7 @@ def jump_to_room(destination, current_room=current_room):
     for index in range(len(route_to_shop)):
         for direction in ["n", "e", "w", "s"]:
             try:
-                if room_grid[f"{route_to_shop[index]}"][direction] == route_to_shop[index +1]:
+                if room_grid[str(route_to_shop[index])][direction] == route_to_shop[index +1]:
                     routes.append(direction)
             except KeyError:
                 None
@@ -41,15 +38,15 @@ def jump_to_room(destination, current_room=current_room):
         for movement_direction in routes:
             if count < len(route_to_shop):
                 time.sleep(current_room['cooldown'])
-                new_room = requests.post(url + '/adv/move/', json={'direction': f'{movement_direction}',
-                "next_room_id": f'{route_to_shop[count]}'}, headers={'Authorization': token}).json()
+                new_room = requests.post(url + '/adv/move/', json={'direction': str(movement_direction),
+                "next_room_id": str(route_to_shop[count])}, headers={'Authorization': token}).json()
                 current_room = new_room
                 print(current_room)
                 count += 1 
-                time.sleep(current_room['cooldown'])
             else:
-                # exit()
-                return 
+                #exit()
+                return
 
 
-# jump_to_room('1')
+
+#jump_to_room('255')

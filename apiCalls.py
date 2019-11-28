@@ -86,12 +86,15 @@ class APICalls:
     def checkStatus(self):
         if self.waiting_time > time.time():
             time.sleep(self.waiting_time - time.time())
+        #sleep(self.current_room["cooldown"])
         response = requests.post(url + '/adv/status/',
-                                 headers={'Authorization': token}).json()
+                                headers={'Authorization': token}).json()
         try:
-            print(response)
-            self.status = response
-            self.waiting_time = time.time() + float(response.get('cooldown'))
+            if 'inventory' in response:
+                print(response)
+                self.status = response
+            self.waiting_time = time.time() + float(response.get('cooldown'))            
+            print("The response is "+str(response))
 
         except:
             print("Invalid response", response)
@@ -135,7 +138,7 @@ class APICalls:
             return
 
         response = requests.post(url + '/adv/move/', headers={'Authorization': token}, json={
-                                 "direction": dir, "next_room_id": next_room}).json()
+                                "direction": dir, "next_room_id": next_room}).json()
         try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
             self.current_room = response
@@ -159,8 +162,8 @@ class APICalls:
             print("Invalid response", response)
 
     def valid_proof(self, block_string, proof, difficulty):
-        guess = f"{block_string}{proof}".encode()
-        # guess = str(block_string)+str(proof).encode()
+        # guess = f"{block_string}{proof}".encode()
+        guess = str(block_string)+str(proof).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:difficulty] == "0" * difficulty
 
@@ -189,6 +192,7 @@ class APICalls:
         response = requests.post(
             url + '/adv/examine/', headers={'Authorization': token}, json={"name": item_or_player}).json()
         try:
+            print("Room have been examined")
             print(response)
             self.waiting_time = time.time() + float(response.get('cooldown'))
             with open("description.py", "w") as code:
@@ -266,7 +270,7 @@ class APICalls:
             return
 
         response = requests.post(url + '/adv/dash/', headers={'Authorization': token}, json={
-                                 "direction": dir, "num_rooms": num_of_rooms, "next_room_ids": next_rooms}).json()
+                                "direction": dir, "num_rooms": num_of_rooms, "next_room_ids": next_rooms}).json()
 
         try:
             self.waiting_time = time.time() + float(response.get('cooldown'))
@@ -277,6 +281,8 @@ class APICalls:
             print("Invalid response", response)
 
     def get_current_room(self):
+        if self.waiting_time > time.time():
+            time.sleep(self.waiting_time - time.time())        
         res = requests.get(
             url + "/adv/init/",
             headers={'Authorization': token}
@@ -286,17 +292,19 @@ class APICalls:
         return res_json["room_id"]
 
     def change_player_name(self, name):
+        if self.waiting_time > time.time():
+            time.sleep(self.waiting_time - time.time())
         res = requests.post(
             url + "/adv/change_name/",
             headers={'Authorization': token},
             json={"name": name, "confirm": "aye"}
         )
+        print("You changed your name to " +str(name))
         print(res.json())
         return res.json()
 
-# ========== Uncomment this code to mine
-# response = requests.get(
-#     url + '/bc/last_proof/', headers={'Authorization': token}).json()
+# # ========== Uncomment this code to mine
+# response = requests.get(url + '/bc/last_proof/', headers={'Authorization': token}).json()
 # print(response)
 # block = response['proof']
 # difficulty = response['difficulty']
@@ -305,7 +313,7 @@ class APICalls:
 #     c.proof_of_work(response['proof'], response['difficulty'])
 #     res = c.mineCoin(c.new_proof)
 #     time.sleep(res["cooldown"])
-# =========== Uncomment this code to mine
+# # =========== Uncomment this code to mine
 
 # c.init()
 # c.move('s')
