@@ -27,7 +27,7 @@ def bfs(room_id, destination, room_grid):
                 return path
 
             visited.add(v)
-            for key, value in room_grid[f'{v}'].items():
+            for key, value in room_grid[str(v)].items():
                 new_path = list(path)
                 new_path.append(value)
                 q.enqueue(new_path)
